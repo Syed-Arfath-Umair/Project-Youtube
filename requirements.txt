@@ -1,0 +1,2 @@
+google-api-python-client==2.56.0
+APScheduler==3.9.1.post1
