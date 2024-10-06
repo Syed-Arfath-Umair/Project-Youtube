@@ -62,7 +62,7 @@ def get_recent_shorts(channel_id):
     return shorts
 
 def send_email(links):
-    # Send email notification
+    """Send email notification with the provided links."""
     sender_email = os.environ['SENDER_EMAIL']
     receiver_email = os.environ['RECEIVER_EMAIL']
     sender_password = os.environ['SENDER_PASSWORD']
@@ -77,7 +77,27 @@ def send_email(links):
     server.sendmail(sender_email, receiver_email, msg.as_string())
     server.quit()
 
+def send_notification_email():
+    """Sends an email notification when the script is run."""
+    sender_email = os.environ['SENDER_EMAIL']
+    receiver_email = os.environ['RECEIVER_EMAIL']
+    sender_password = os.environ['SENDER_PASSWORD']
+
+    msg = MIMEText("The YouTube Shorts email notification script has been deployed successfully.")
+    msg['Subject'] = 'Script Deployed Successfully'
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, receiver_email, msg.as_string())
+        print("Deployment notification email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send deployment notification email: {e}")
+
 def check_for_new_shorts():
+    """Checks for new YouTube Shorts and sends email notification."""
     all_shorts = []
     for channel_name, channel_id in channel_ids.items():
         shorts = get_recent_shorts(channel_id)
@@ -92,6 +112,9 @@ def check_for_new_shorts():
         print("No new shorts uploaded today.")
 
 if __name__ == '__main__':
+    # Send notification email at the start
+    send_notification_email()
+    
     scheduler = BlockingScheduler()
     scheduler.add_job(check_for_new_shorts, 'interval', hours=24)  # Check daily
     scheduler.start()
